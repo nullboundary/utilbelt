@@ -18,7 +18,7 @@ import (
 //
 //
 //////////////////////////////////////////////////////////////////////////
-func GenerateToken(key string, seeds ...string) string {
+func GenerateToken(key []byte, seeds ...string) string {
 
 	tokenSeed := strings.Join(seeds, "|")
 	hmac := CalcHMAC(tokenSeed, key)
@@ -32,7 +32,7 @@ func GenerateToken(key string, seeds ...string) string {
 //
 //
 //////////////////////////////////////////////////////////////////////////
-func VerifyToken(key string, authToken string, seeds ...string) (bool, error) {
+func VerifyToken(key []byte, authToken string, seeds ...string) (bool, error) {
 
 	decodedMac, err := base64.URLEncoding.DecodeString(authToken)
 	if err != nil {
@@ -49,9 +49,9 @@ func VerifyToken(key string, authToken string, seeds ...string) (bool, error) {
 //
 //
 //////////////////////////////////////////////////////////////////////////
-func CalcHMAC(message string, key string) []byte {
+func CalcHMAC(message string, key []byte) []byte {
 
-	mac := hmac.New(sha256.New, []byte(key))
+	mac := hmac.New(sha256.New, key)
 	n, err := mac.Write([]byte(message))
 	if n != len(message) || err != nil {
 		panic(err)
@@ -65,9 +65,9 @@ func CalcHMAC(message string, key string) []byte {
 //
 //
 //////////////////////////////////////////////////////////////////////////
-func VerifyHMAC(message string, macOfMessage []byte, key string) bool {
+func VerifyHMAC(message string, macOfMessage []byte, key []byte) bool {
 
-	mac := hmac.New(sha256.New, []byte(key))
+	mac := hmac.New(sha256.New, key)
 	n, err := mac.Write([]byte(message))
 	if n != len(message) || err != nil {
 		panic(err)
