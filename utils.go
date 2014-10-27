@@ -6,9 +6,10 @@ import (
 	"github.com/coreos/go-etcd/etcd"
 	"github.com/zenazn/goji/web"
 	"net/http"
+	"os"
 )
 
-var clientEtcd = etcd.NewClient([]string{"http://127.0.0.1:4001"})
+var clientEtcd = etcd.NewClient([]string{os.Getenv("ETCD_IP")})
 
 //////////////////////////////////////////////////////////////////////////
 //
