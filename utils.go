@@ -53,8 +53,8 @@ func getEtcdKey(key string) (string, error) {
 //
 //
 //////////////////////////////////////////////////////////////////////////
-func SafeFileSystem(path http.Dir) *filterFS {
-	return &filterFS{path}
+func SafeFileSystem(path http.Dir) filterFS {
+	return filterFS{path}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -73,7 +73,7 @@ type filterFS struct {
 //
 //
 //////////////////////////////////////////////////////////////////////////
-func (fs *filterFS) Open(name string) (http.File, error) {
+func (fs filterFS) Open(name string) (http.File, error) {
 	f, err := fs.Open(name)
 	if err != nil {
 		return nil, err
