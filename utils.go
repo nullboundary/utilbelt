@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/coreos/go-etcd/etcd"
 	"github.com/zenazn/goji/web"
+	"io"
 	"net/http"
 	"os"
 )
@@ -98,7 +99,7 @@ type noReadDirFile struct {
 //
 //////////////////////////////////////////////////////////////////////////
 func (f noReadDirFile) Readdir(count int) ([]os.FileInfo, error) {
-	return nil, nil
+	return nil, io.EOF
 }
 
 //////////////////////////////////////////////////////////////////////////
