@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-var clientEtcd = etcd.NewClient([]string{"http://10.1.42.1"}) //TODO: find a better way to set this!
+var clientEtcd = etcd.NewClient([]string{"http://10.1.42.1:4001"}) //TODO: find a better way to set this!
 
 //////////////////////////////////////////////////////////////////////////
 //
