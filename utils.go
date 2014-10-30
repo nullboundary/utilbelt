@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"github.com/coreos/go-etcd/etcd"
 	"github.com/zenazn/goji/web"
-	"io"
 	"net/http"
-	"os"
 )
 
 var clientEtcd = etcd.NewClient([]string{"http://10.1.42.1"}) //TODO: find a better way to set this!
