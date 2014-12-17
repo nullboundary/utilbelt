@@ -5,8 +5,10 @@ import (
 	"crypto/cipher"
 	"crypto/hmac"
 	"crypto/rand"
+	"crypto/sha1"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strings"
@@ -22,7 +24,12 @@ func GenerateToken(key []byte, seeds ...string) string {
 
 	tokenSeed := strings.Join(seeds, "|")
 	hmac := CalcHMAC(tokenSeed, key)
+
+	//if isURLEncode {
 	return base64.URLEncoding.EncodeToString(hmac)
+	//}
+
+	//return base64.StdEncoding.EncodeToString(hmac)
 
 }
 
@@ -34,7 +41,11 @@ func GenerateToken(key []byte, seeds ...string) string {
 //////////////////////////////////////////////////////////////////////////
 func VerifyToken(key []byte, authToken string, seeds ...string) (bool, error) {
 
+	//if isURLEncode {
 	decodedMac, err := base64.URLEncoding.DecodeString(authToken)
+	//} else {
+	//	decodedMac, err := base64.StdEncoding.DecodeString(authToken)
+	//}
 	if err != nil {
 		return false, fmt.Errorf("base64 Decode Error: %s", err)
 	}
@@ -135,4 +146,37 @@ func decryptAESCFB(key []byte, cryptoText string) string {
 	stream.XORKeyStream(ciphertext, ciphertext)
 
 	return fmt.Sprintf("%s", ciphertext)
+}
+
+//////////////////////////////////////////////////////////////////////////
+//
+//
+//
+//
+//////////////////////////////////////////////////////////////////////////
+func hashSha1Json(jsonData interface{}) []byte {
+
+	//compute sha1 hash for json
+	hash := sha1.New()
+	enc := json.NewEncoder(hash) //json encode writes to the hash function
+	enc.Encode(jsonData)
+	return hash.Sum(nil)
+}
+
+//////////////////////////////////////////////////////////////////////////
+//
+//
+//
+//
+//////////////////////////////////////////////////////////////////////////
+func hashSha1Bytes(hashBytes []byte) []byte {
+
+	//compute sha1 hash of bytes
+	hash := sha1.New()
+	n, err := hash.Write(hashBytes)
+	if n != len(hashBytes) || err != nil {
+		panic(err)
+	}
+	return hash.Sum(nil)
+
 }

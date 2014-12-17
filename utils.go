@@ -1,11 +1,12 @@
 package utils
 
 import (
-	"bitbucket.org/cicadaDev/storer"
 	"fmt"
+	"net/http"
+
+	"bitbucket.org/cicadaDev/storer"
 	"github.com/coreos/go-etcd/etcd"
 	"github.com/zenazn/goji/web"
-	"net/http"
 )
 
 var clientEtcd = etcd.NewClient([]string{"http://10.1.42.1:4001"}) //TODO: find a better way to set this!
@@ -16,7 +17,7 @@ var clientEtcd = etcd.NewClient([]string{"http://10.1.42.1:4001"}) //TODO: find 
 //
 //
 //////////////////////////////////////////////////////////////////////////
-func setEtcdKey(key string, value string) error {
+func SetEtcdKey(key string, value string) error {
 	// SET the value "bar" to the key "foo" with zero TTL
 	// returns a: *store.Response
 	_, err := clientEtcd.Set(key, value, 0)
@@ -34,7 +35,7 @@ func setEtcdKey(key string, value string) error {
 //
 //
 //////////////////////////////////////////////////////////////////////////
-func getEtcdKey(key string) (string, error) {
+func GetEtcdKey(key string) (string, error) {
 
 	// GET the value that is stored for the key
 	resp, err := clientEtcd.Get(key, false, false)
@@ -60,15 +61,13 @@ func GetDbType(c web.C) (storer.Storer, error) {
 
 			return db, nil //all good
 
-		} else {
-			err := fmt.Errorf("value could not convert to type Storer")
-			return nil, err
 		}
-
-	} else {
-		err := fmt.Errorf("value for key db, not found")
+		err := fmt.Errorf("value could not convert to type Storer")
 		return nil, err
+
 	}
+	err := fmt.Errorf("value for key db, not found")
+	return nil, err
 
 }
 
@@ -89,11 +88,11 @@ func AddDb(c *web.C, h http.Handler) http.Handler {
 
 			rt := storer.NewReThink()
 			var err error
-			rt.Url, err = getEtcdKey("db/url") //os.Getenv("PASS_APP_DB_URL")
+			rt.Url, err = GetEtcdKey("db/url") //os.Getenv("PASS_APP_DB_URL")
 			Check(err)
-			rt.Port, err = getEtcdKey("db/port") //os.Getenv("PASS_APP_DB_PORT")
+			rt.Port, err = GetEtcdKey("db/port") //os.Getenv("PASS_APP_DB_PORT")
 			Check(err)
-			rt.DbName, err = getEtcdKey("db/name") //os.Getenv("PASS_APP_DB_NAME")
+			rt.DbName, err = GetEtcdKey("db/name") //os.Getenv("PASS_APP_DB_NAME")
 			Check(err)
 
 			s := storer.Storer(rt) //abstract cb to a Storer
