@@ -189,7 +189,7 @@ func hashSha1Bytes(hashBytes []byte) []byte {
 //
 //
 //////////////////////////////////////////////////////////////////////////
-func randString(n int) string {
+func RandomStr(n int) string {
 	g := big.NewInt(0)
 	max := big.NewInt(130)
 	bs := make([]byte, n)
