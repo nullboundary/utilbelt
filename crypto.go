@@ -11,7 +11,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/big"
 	"strings"
+	"unicode"
 )
 
 //////////////////////////////////////////////////////////////////////////
@@ -179,4 +181,27 @@ func hashSha1Bytes(hashBytes []byte) []byte {
 	}
 	return hash.Sum(nil)
 
+}
+
+//////////////////////////////////////////////////////////////////////////
+//
+//
+//
+//
+//////////////////////////////////////////////////////////////////////////
+func randString(n int) string {
+	g := big.NewInt(0)
+	max := big.NewInt(130)
+	bs := make([]byte, n)
+
+	for i, _ := range bs {
+		g, _ = rand.Int(rand.Reader, max)
+		r := rune(g.Int64())
+		for !unicode.IsNumber(r) && !unicode.IsLetter(r) {
+			g, _ = rand.Int(rand.Reader, max)
+			r = rune(g.Int64())
+		}
+		bs[i] = byte(g.Int64())
+	}
+	return string(bs)
 }

@@ -1,12 +1,15 @@
 package utils
 
 import (
-	"fmt"
-	"net/http"
-
 	"bitbucket.org/cicadaDev/storer"
+	"crypto/rand"
+	"encoding/binary"
+	"fmt"
 	"github.com/coreos/go-etcd/etcd"
 	"github.com/zenazn/goji/web"
+	"hash/fnv"
+	"net/http"
+	"strings"
 )
 
 var clientEtcd = etcd.NewClient([]string{"http://10.1.42.1:4001"}) //TODO: find a better way to set this!
@@ -44,6 +47,26 @@ func GetEtcdKey(key string) (string, error) {
 	}
 
 	return resp.Node.Value, nil
+
+}
+
+//////////////////////////////////////////////////////////////////////////
+//
+//	generate a hash fnv1a hash. Fast, unique, but insecure! use only for ids and such.
+//  https://programmers.stackexchange.com/questions/49550/which-hashing-algorithm-is-best-for-uniqueness-and-speed
+//
+//////////////////////////////////////////////////////////////////////////
+func GenerateFnvHashID(hashSeeds ...string) uint32 {
+
+	inputString := strings.Join(hashSeeds, "")
+
+	var randomness int32
+	binary.Read(rand.Reader, binary.LittleEndian, &randomness) //add a little randomness
+	inputString = fmt.Sprintf("%s%x", inputString, randomness)
+
+	h := fnv.New32a()
+	h.Write([]byte(inputString))
+	return h.Sum32()
 
 }
 
