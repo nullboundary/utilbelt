@@ -1,14 +1,11 @@
 package utils
 
 import (
-	"bitbucket.org/cicadaDev/storer"
 	"crypto/rand"
 	"encoding/binary"
 	"fmt"
 	"github.com/coreos/go-etcd/etcd"
-	"github.com/zenazn/goji/web"
 	"hash/fnv"
-	"net/http"
 	"strings"
 )
 
@@ -68,65 +65,6 @@ func GenerateFnvHashID(hashSeeds ...string) uint32 {
 	h.Write([]byte(inputString))
 	return h.Sum32()
 
-}
-
-//////////////////////////////////////////////////////////////////////////
-//
-//	getDbType
-//
-//
-//////////////////////////////////////////////////////////////////////////
-func GetDbType(c web.C) (storer.Storer, error) {
-
-	if v, ok := c.Env["db"]; ok {
-
-		if db, ok := v.(storer.Storer); ok {
-
-			return db, nil //all good
-
-		}
-		err := fmt.Errorf("value could not convert to type Storer")
-		return nil, err
-
-	}
-	err := fmt.Errorf("value for key db, not found")
-	return nil, err
-
-}
-
-//////////////////////////////////////////////////////////////////////////
-//
-//	addDb Middleware
-//
-//
-//////////////////////////////////////////////////////////////////////////
-func AddDb(c *web.C, h http.Handler) http.Handler {
-	handler := func(w http.ResponseWriter, r *http.Request) {
-
-		if c.Env == nil {
-			c.Env = make(map[string]interface{})
-		}
-
-		if _, ok := c.Env["db"]; !ok { //test is the db is already added
-
-			rt := storer.NewReThink()
-			var err error
-			rt.Url, err = GetEtcdKey("db/url") //os.Getenv("PASS_APP_DB_URL")
-			Check(err)
-			rt.Port, err = GetEtcdKey("db/port") //os.Getenv("PASS_APP_DB_PORT")
-			Check(err)
-			rt.DbName, err = GetEtcdKey("db/name") //os.Getenv("PASS_APP_DB_NAME")
-			Check(err)
-
-			s := storer.Storer(rt) //abstract cb to a Storer
-			s.Conn()
-
-			c.Env["db"] = s //add db
-		}
-
-		h.ServeHTTP(w, r)
-	}
-	return http.HandlerFunc(handler)
 }
 
 //////////////////////////////////////////////////////////////////////////
