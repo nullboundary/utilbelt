@@ -4,7 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/binary"
 	"fmt"
-	"github.com/coreos/go-etcd/etcd"
+	"github.com/coreos/etcd"
 	"hash/fnv"
 	"strings"
 )
