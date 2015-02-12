@@ -27,11 +27,7 @@ func GenerateToken(key []byte, seeds ...string) string {
 	tokenSeed := strings.Join(seeds, "|")
 	hmac := CalcHMAC(tokenSeed, key)
 
-	//if isURLEncode {
 	return base64.URLEncoding.EncodeToString(hmac)
-	//}
-
-	//return base64.StdEncoding.EncodeToString(hmac)
 
 }
 
@@ -43,11 +39,8 @@ func GenerateToken(key []byte, seeds ...string) string {
 //////////////////////////////////////////////////////////////////////////
 func VerifyToken(key []byte, authToken string, seeds ...string) (bool, error) {
 
-	//if isURLEncode {
 	decodedMac, err := base64.URLEncoding.DecodeString(authToken)
-	//} else {
-	//	decodedMac, err := base64.StdEncoding.DecodeString(authToken)
-	//}
+
 	if err != nil {
 		return false, fmt.Errorf("base64 Decode Error: %s", err)
 	}

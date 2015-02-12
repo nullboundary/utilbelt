@@ -5,15 +5,18 @@ import (
 	"encoding/binary"
 	"fmt"
 	"github.com/coreos/go-etcd/etcd"
+	"github.com/xordataexchange/crypt/config"
 	"hash/fnv"
+	"os"
 	"strings"
 )
 
-var clientEtcd = etcd.NewClient([]string{"http://10.1.42.1:4001"}) //TODO: find a better way to set this!
+var clientEtcdURL = []string{"http://10.1.42.1:4001"} //TODO: find a better way to set this!
+var clientEtcd = etcd.NewClient(clientEtcdURL)
 
 //////////////////////////////////////////////////////////////////////////
 //
-//
+//	GetEtcdKey sets key/value pairs from etcd disrtibuted store
 //
 //
 //////////////////////////////////////////////////////////////////////////
@@ -31,7 +34,7 @@ func SetEtcdKey(key string, value string) error {
 
 //////////////////////////////////////////////////////////////////////////
 //
-//
+//	GetEtcdKey retrives key/value pairs from etcd disrtibuted store
 //
 //
 //////////////////////////////////////////////////////////////////////////
@@ -45,6 +48,35 @@ func GetEtcdKey(key string) (string, error) {
 
 	return resp.Node.Value, nil
 
+}
+
+//////////////////////////////////////////////////////////////////////////
+//
+//	Used for loading encrypted etcd key/value pairs.
+//
+//
+//////////////////////////////////////////////////////////////////////////
+func GetCryptKey(keyringPath string, key string) ([]byte, error) {
+
+	//get key ring
+	kr, err := os.Open(keyringPath)
+	if err != nil {
+		return nil, fmt.Errorf("open keyring error: %v", err)
+	}
+	defer kr.Close()
+
+	//setup etcd manager
+	cm, err := config.NewEtcdConfigManager(clientEtcdURL, kr)
+	if err != nil {
+		return nil, fmt.Errorf("setup etcd manager error: %v", err)
+	}
+
+	value, err := cm.Get(key)
+	if err != nil {
+		return nil, fmt.Errorf("get crypt etcd key error: %v", err)
+	}
+
+	return value, nil
 }
 
 //////////////////////////////////////////////////////////////////////////
