@@ -62,12 +62,13 @@ func WriteJson(res http.ResponseWriter, dataOut interface{}, pretty bool) error 
 //////////////////////////////////////////////////////////////////////////
 func JsonErrorResponse(res http.ResponseWriter, err error, status int) {
 
+	errorReport := map[string]string{"code": fmt.Sprintf("%d", status), "error": err.Error()}
+
+	res.Header().Set("Content-Type", "application/json")
 	res.WriteHeader(status)
 
-	errorReport := map[string]string{"status": fmt.Sprintf("%d", status), "error": err.Error()}
-
-	if err := WriteJson(res, errorReport, true); err != nil {
-		log.Printf("json write Error: %s", err.Error())
+	if err := json.NewEncoder(res).Encode(errorReport); err != nil {
+		log.Printf("jsonWrite Error: %v", err)
 	}
 }
 
