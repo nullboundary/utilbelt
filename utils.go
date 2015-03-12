@@ -11,8 +11,22 @@ import (
 	"strings"
 )
 
-var clientEtcdURL = []string{"http://10.1.42.1:4001"} //TODO: find a better way to set this!
+var clientEtcdURL = []string{"http://10.1.42.1:4001"} //Default
 var clientEtcd = etcd.NewClient(clientEtcdURL)
+
+//////////////////////////////////////////////////////////////////////////
+//
+//	set the url address and port of the etcd service from environment variables
+//
+//
+//////////////////////////////////////////////////////////////////////////
+func SetEtcdURL() {
+	addr := os.Getenv("ETCD_URL") //"http://10.1.42.1:4001"
+	if addr != "" {
+		clientEtcdURL = []string{addr}
+	}
+
+}
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -35,7 +49,7 @@ func SetEtcdKey(key string, value string) error {
 //////////////////////////////////////////////////////////////////////////
 //
 //	GetEtcdKey retrives key/value pairs from etcd disrtibuted store
-//
+//	//TODO: Return []byte?
 //
 //////////////////////////////////////////////////////////////////////////
 func GetEtcdKey(key string) (string, error) {
@@ -53,7 +67,7 @@ func GetEtcdKey(key string) (string, error) {
 //////////////////////////////////////////////////////////////////////////
 //
 //	Used for loading encrypted etcd key/value pairs.
-//
+//	crypt set -keyring .pubring.gpg -endpoint http://10.1.42.1:4001 /catagory/variable filename
 //
 //////////////////////////////////////////////////////////////////////////
 func GetCryptKey(keyringPath string, key string) ([]byte, error) {
