@@ -20,12 +20,12 @@ var clientEtcd = etcd.NewClient(clientEtcdURL)
 //
 //
 //////////////////////////////////////////////////////////////////////////
-func SetEtcdURL() {
+func SetEtcdURL() string {
 	addr := os.Getenv("ETCD_URL") //"http://10.1.42.1:4001"
 	if addr != "" {
 		clientEtcdURL = []string{addr}
 	}
-
+	return addr
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -87,7 +87,7 @@ func GetCryptKey(keyringPath string, key string) ([]byte, error) {
 
 	value, err := cm.Get(key)
 	if err != nil {
-		return nil, fmt.Errorf("get crypt etcd key error: %v", err)
+		return nil, fmt.Errorf("get crypt %v error: %v", clientEtcdURL, err)
 	}
 
 	return value, nil
