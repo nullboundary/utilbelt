@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-var clientEtcdURL = []string{"http://10.1.42.1:4001"} //Default
+var clientEtcdURL = []string{"http://172.17.42.1:4001"} //Default
 var clientEtcd = etcd.NewClient(clientEtcdURL)
 
 //////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,7 @@ func SetEtcdURL() string {
 	addr := os.Getenv("ETCD_URL") //"http://10.1.42.1:4001"
 	if addr != "" {
 		clientEtcdURL = []string{addr}
+		clientEtcd = etcd.NewClient(clientEtcdURL)
 	}
 	return addr
 }
