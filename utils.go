@@ -25,8 +25,10 @@ func SetEtcdURL() string {
 	if addr != "" {
 		clientEtcdURL = []string{addr}
 		clientEtcd = etcd.NewClient(clientEtcdURL)
+		return addr
 	}
-	return addr
+	return clientEtcdURL[0]
+
 }
 
 //////////////////////////////////////////////////////////////////////////
