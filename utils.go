@@ -21,7 +21,7 @@ var clientEtcd = etcd.NewClient(clientEtcdURL)
 //
 //////////////////////////////////////////////////////////////////////////
 func SetEtcdURL() string {
-	addr := os.Getenv("ETCD_URL") //"http://10.1.42.1:4001"
+	addr := os.Getenv("ETCD") //"http://10.1.42.1:4001"
 	if addr != "" {
 		clientEtcdURL = []string{addr}
 		clientEtcd = etcd.NewClient(clientEtcdURL)
@@ -33,14 +33,14 @@ func SetEtcdURL() string {
 
 //////////////////////////////////////////////////////////////////////////
 //
-//	GetEtcdKey sets key/value pairs from etcd disrtibuted store
+//	SetEtcdKey sets key/value pairs to etcd disrtibuted store
 //
 //
 //////////////////////////////////////////////////////////////////////////
-func SetEtcdKey(key string, value string) error {
+func SetEtcdKey(key string, value string, ttl int) error {
 	// SET the value "bar" to the key "foo" with zero TTL
 	// returns a: *store.Response
-	_, err := clientEtcd.Set(key, value, 0)
+	_, err := clientEtcd.Set(key, value, ttl)
 	if err != nil {
 		return fmt.Errorf("set etcd key error: %v", err)
 	}
@@ -69,8 +69,26 @@ func GetEtcdKey(key string) (string, error) {
 
 //////////////////////////////////////////////////////////////////////////
 //
+//	HeartbeatEtcd sets key/value pairs to etcd disrtibuted store at an interval
+//  Used to renew a ttl set
+//
+//////////////////////////////////////////////////////////////////////////
+func HeartbeatEtcd(key string, value string, ttl int) {
+
+	interval := (ttl * 1000) - 500
+	ticker := time.NewTicker(time.Millisecond * interval)
+	go func() {
+		for t := range ticker.C {
+			SetEtcdKey(key, value, ttl)
+		}
+	}()
+
+}
+
+//////////////////////////////////////////////////////////////////////////
+//
 //	Used for loading encrypted etcd key/value pairs.
-//	crypt set -keyring .pubring.gpg -endpoint http://10.1.42.1:4001 /catagory/variable filename
+//	crypt set -keyring .pubring.gpg -endpoint http://172.17.42.1:4001 /catagory/variable filename
 //
 //////////////////////////////////////////////////////////////////////////
 func GetCryptKey(keyringPath string, key string) ([]byte, error) {
