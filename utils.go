@@ -77,7 +77,7 @@ func GetEtcdKey(key string) (string, error) {
 func HeartbeatEtcd(key string, value string, ttl int) {
 
 	interval := (ttl * 1000) - 500
-	ticker := time.NewTicker(time.Millisecond * interval)
+	ticker := time.NewTicker(time.Millisecond * time.Duration(interval))
 	go func() {
 		for t := range ticker.C {
 			SetEtcdKey(key, value, ttl)
