@@ -74,7 +74,7 @@ func GetEtcdKey(key string) (string, error) {
 //  Used to renew a ttl set
 //
 //////////////////////////////////////////////////////////////////////////
-func HeartbeatEtcd(key string, value string, ttl int) {
+func HeartBeatEtcd(key string, value string, ttl int) {
 
 	interval := (ttl * 1000) - 500
 	ticker := time.NewTicker(time.Millisecond * time.Duration(interval))
