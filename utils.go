@@ -9,6 +9,7 @@ import (
 	"hash/fnv"
 	"os"
 	"strings"
+	"time"
 )
 
 var clientEtcdURL = []string{"http://172.17.42.1:4001"} //Default
@@ -40,7 +41,7 @@ func SetEtcdURL() string {
 func SetEtcdKey(key string, value string, ttl int) error {
 	// SET the value "bar" to the key "foo" with zero TTL
 	// returns a: *store.Response
-	_, err := clientEtcd.Set(key, value, ttl)
+	_, err := clientEtcd.Set(key, value, uint64(ttl))
 	if err != nil {
 		return fmt.Errorf("set etcd key error: %v", err)
 	}
