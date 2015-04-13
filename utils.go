@@ -137,6 +137,70 @@ func GenerateFnvHashID(hashSeeds ...string) uint32 {
 
 //////////////////////////////////////////////////////////////////////////
 //
+// encodetoDataUri
+//
+//
+//////////////////////////////////////////////////////////////////////////
+func EncodetoDataUri(fileName string, mimeType string, allowTypes ...string) (string, error) {
+
+	file, _ := os.Open(fileName) //TODO: change to read in through form or json
+	defer file.Close()
+
+	fileInfo, _ := file.Stat() // FileInfo interface
+	size := fileInfo.Size()    // file size
+
+	data := make([]byte, size)
+
+	contentType := path.Ext(fileName)
+
+	typeFound := false
+	for _, fileType := range allowTypes { //match the type with the allowed types
+		if contentType == fileType {
+			typeFound = true
+			break
+		}
+	}
+
+	if !typeFound {
+		err := fmt.Errorf("[Error] file type: %s not allowed", contentType)
+		return "", err
+	}
+
+	file.Read(data)
+
+	return fmt.Sprintf("data:%s;base64,%s", mimeType, base64.StdEncoding.EncodeToString(data)), nil
+}
+
+//////////////////////////////////////////////////////////////////////////
+//
+// DecodeUriToBytes
+//
+//
+//////////////////////////////////////////////////////////////////////////
+func DecodeUriToBytes(str string, fileType string) (string, []byte) {
+
+	dataStr := strings.SplitN(str, ",", 2) //seperate data:image/png;base64, from the DataURI
+
+	fieldTest := func(c rune) bool {
+		return !unicode.IsLetter(c) && !unicode.IsNumber(c)
+	}
+	fields := strings.FieldsFunc(dataStr[0], fieldTest) //Fields are: ["data" "image" "png" "base64"]
+	dataExt := fields[2]                                //only need the file extension
+
+	if dataExt != fileType {
+		err := fmt.Errorf("[Error] file type: %s not allowed", dataExt)
+		utils.Check(err)
+	}
+
+	data, err := base64.StdEncoding.DecodeString(dataStr[1]) // [] byte
+	utils.Check(err)
+
+	return dataExt, data
+
+}
+
+//////////////////////////////////////////////////////////////////////////
+//
 //
 //
 //

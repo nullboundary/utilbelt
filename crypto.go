@@ -88,7 +88,7 @@ func VerifyHMAC(message string, macOfMessage []byte, key []byte) bool {
 //
 //
 //////////////////////////////////////////////////////////////////////////
-func encryptAESCFB(key []byte, text string) string {
+func EncryptAESCFB(key []byte, text string) string {
 
 	plaintext := []byte(text)
 
@@ -118,7 +118,7 @@ func encryptAESCFB(key []byte, text string) string {
 //
 //
 //////////////////////////////////////////////////////////////////////////
-func decryptAESCFB(key []byte, cryptoText string) string {
+func DecryptAESCFB(key []byte, cryptoText string) string {
 
 	ciphertext, _ := base64.URLEncoding.DecodeString(cryptoText)
 
@@ -149,7 +149,7 @@ func decryptAESCFB(key []byte, cryptoText string) string {
 //
 //
 //////////////////////////////////////////////////////////////////////////
-func hashSha1Json(jsonData interface{}) []byte {
+func HashSha1Json(jsonData interface{}) []byte {
 
 	//compute sha1 hash for json
 	hash := sha1.New()
@@ -164,7 +164,7 @@ func hashSha1Json(jsonData interface{}) []byte {
 //
 //
 //////////////////////////////////////////////////////////////////////////
-func hashSha1Bytes(hashBytes []byte) []byte {
+func HashSha1Bytes(hashBytes []byte) []byte {
 
 	//compute sha1 hash of bytes
 	hash := sha1.New()
