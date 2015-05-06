@@ -2,14 +2,18 @@ package utils
 
 import (
 	"crypto/rand"
+	"encoding/base64"
 	"encoding/binary"
 	"fmt"
-	"github.com/coreos/go-etcd/etcd"
-	"github.com/xordataexchange/crypt/config"
 	"hash/fnv"
 	"os"
+	"path"
 	"strings"
 	"time"
+	"unicode"
+
+	"github.com/coreos/go-etcd/etcd"
+	"github.com/xordataexchange/crypt/config"
 )
 
 var clientEtcdURL = []string{"http://172.17.42.1:4001"} //Default
@@ -189,11 +193,11 @@ func DecodeUriToBytes(str string, fileType string) (string, []byte) {
 
 	if dataExt != fileType {
 		err := fmt.Errorf("[Error] file type: %s not allowed", dataExt)
-		utils.Check(err)
+		Check(err)
 	}
 
 	data, err := base64.StdEncoding.DecodeString(dataStr[1]) // [] byte
-	utils.Check(err)
+	Check(err)
 
 	return dataExt, data
 
