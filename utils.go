@@ -25,13 +25,23 @@ var clientEtcd = etcd.NewClient(clientEtcdURL)
 //
 //
 //////////////////////////////////////////////////////////////////////////
-func SetEtcdURL() string {
+func SetEtcdURL(etcdURL ...string) string {
+
+	//first try the list of etcdURLs
+	if len(etcdURL) > 0 {
+		clientEtcd = etcd.NewClient(etcdURL)
+		return etcdURL[0]
+	}
+
+	//Then try an env variable
 	addr := os.Getenv("ETCD") //"http://10.1.42.1:4001"
 	if addr != "" {
 		clientEtcdURL = []string{addr}
 		clientEtcd = etcd.NewClient(clientEtcdURL)
 		return addr
 	}
+
+	//otherwise fall back on default
 	return clientEtcdURL[0]
 
 }
