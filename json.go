@@ -29,12 +29,13 @@ func ReadJson(req *http.Request, data interface{}) error {
 //
 //
 //////////////////////////////////////////////////////////////////////////
-func WriteJson(res http.ResponseWriter, dataOut interface{}, pretty bool) error {
+func WriteJsonStatus(res http.ResponseWriter, status int, dataOut interface{}, pretty bool) error {
 
 	res.Header().Add("Content-Type", "application/json")
 	res.Header().Add("Access-Control-Allow-Methods", "POST, GET, PATCH, DELETE")
 	res.Header().Add("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token")
 	res.Header().Add("Access-Control-Allow-Credentials", "true")
+	res.WriteHeader(status)
 
 	//pretty printing.
 	if pretty {
@@ -52,6 +53,18 @@ func WriteJson(res http.ResponseWriter, dataOut interface{}, pretty bool) error 
 	}
 
 	return nil
+}
+
+//////////////////////////////////////////////////////////////////////////
+//
+//
+//
+//
+//////////////////////////////////////////////////////////////////////////
+func WriteJson(res http.ResponseWriter, dataOut interface{}, pretty bool) error {
+
+	//default to status ok, unless specified
+	return WriteJsonStatus(res, http.StatusOK, dataOut, pretty)
 }
 
 //////////////////////////////////////////////////////////////////////////
