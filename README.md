@@ -1,1 +1,1 @@
-Various utility functions used by most cicada go apps. Organized by utility function
+Various utility functions used by many of my go apps. Organized by utility function

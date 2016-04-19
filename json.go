@@ -1,4 +1,4 @@
-package utils
+package utilbelt
 
 import (
 	"encoding/json"
@@ -8,12 +8,7 @@ import (
 	"os"
 )
 
-//////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//////////////////////////////////////////////////////////////////////////
+//ReadJson read json from request and marshal the data
 func ReadJson(req *http.Request, data interface{}) error {
 
 	if err := json.NewDecoder(req.Body).Decode(&data); err != nil {
@@ -23,12 +18,7 @@ func ReadJson(req *http.Request, data interface{}) error {
 	return nil
 }
 
-//////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//////////////////////////////////////////////////////////////////////////
+//WriteJsonStatus writes json to response and set specfic http status code
 func WriteJsonStatus(res http.ResponseWriter, status int, dataOut interface{}, pretty bool) error {
 
 	res.Header().Add("Content-Type", "application/json")
@@ -55,24 +45,14 @@ func WriteJsonStatus(res http.ResponseWriter, status int, dataOut interface{}, p
 	return nil
 }
 
-//////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//////////////////////////////////////////////////////////////////////////
+//WriteJson writes json to response with http.StatusOK
 func WriteJson(res http.ResponseWriter, dataOut interface{}, pretty bool) error {
 
 	//default to status ok, unless specified
 	return WriteJsonStatus(res, http.StatusOK, dataOut, pretty)
 }
 
-//////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//////////////////////////////////////////////////////////////////////////
+//JsonErrorResponse writes your error to response with a specific http status
 func JsonErrorResponse(res http.ResponseWriter, err error, status int) {
 
 	errorReport := map[string]string{"code": fmt.Sprintf("%d", status), "error": err.Error()}
@@ -85,12 +65,7 @@ func JsonErrorResponse(res http.ResponseWriter, err error, status int) {
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//////////////////////////////////////////////////////////////////////////
+//DebugPrintJson prints json data for debugging
 func DebugPrintJson(Data interface{}) {
 
 	printJSon := json.NewEncoder(os.Stdout)

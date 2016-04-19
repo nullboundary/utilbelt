@@ -1,30 +1,23 @@
-package utils
+package utilbelt
 
 import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/binary"
 	"fmt"
+	"github.com/coreos/go-etcd/etcd"
 	"hash/fnv"
 	"os"
 	"path"
 	"strings"
 	"time"
 	"unicode"
-
-	"github.com/coreos/go-etcd/etcd"
-	"github.com/xordataexchange/crypt/config"
 )
 
-var clientEtcdURL = []string{"http://172.17.42.1:4001"} //Default
+var clientEtcdURL = []string{"http://172.17.0.1:4001"} //Default
 var clientEtcd = etcd.NewClient(clientEtcdURL)
 
-//////////////////////////////////////////////////////////////////////////
-//
-//	set the url address and port of the etcd service from environment variables
-//
-//
-//////////////////////////////////////////////////////////////////////////
+//SetEtcdURL sets the url address and port of the etcd service from environment variables
 func SetEtcdURL(etcdURL ...string) string {
 
 	//first try the list of etcdURLs
@@ -34,7 +27,7 @@ func SetEtcdURL(etcdURL ...string) string {
 	}
 
 	//Then try an env variable
-	addr := os.Getenv("ETCD") //"http://10.1.42.1:4001"
+	addr := os.Getenv("ETCD")
 	if addr != "" {
 		clientEtcdURL = []string{addr}
 		clientEtcd = etcd.NewClient(clientEtcdURL)
@@ -46,15 +39,10 @@ func SetEtcdURL(etcdURL ...string) string {
 
 }
 
-//////////////////////////////////////////////////////////////////////////
-//
-//	SetEtcdKey sets key/value pairs to etcd disrtibuted store
-//
-//
-//////////////////////////////////////////////////////////////////////////
+//SetEtcdKey sets key/value pairs to etcd disrtibuted store
 func SetEtcdKey(key string, value string, ttl int) error {
+
 	// SET the value "bar" to the key "foo" with zero TTL
-	// returns a: *store.Response
 	_, err := clientEtcd.Set(key, value, uint64(ttl))
 	if err != nil {
 		return fmt.Errorf("set etcd key error: %v", err)
@@ -64,12 +52,7 @@ func SetEtcdKey(key string, value string, ttl int) error {
 
 }
 
-//////////////////////////////////////////////////////////////////////////
-//
-//	GetEtcdKey retrives key/value pairs from etcd disrtibuted store
-//	//TODO: Return []byte?
-//
-//////////////////////////////////////////////////////////////////////////
+//GetEtcdKey retrives key/value pairs from etcd disrtibuted store
 func GetEtcdKey(key string) (string, error) {
 
 	// GET the value that is stored for the key
@@ -78,16 +61,12 @@ func GetEtcdKey(key string) (string, error) {
 		return "", fmt.Errorf("get etcd key error: %v", err)
 	}
 
-	return resp.Node.Value, nil
+	return resp.Node.Value, nil //TODO: Return []byte?
 
 }
 
-//////////////////////////////////////////////////////////////////////////
-//
-//	HeartbeatEtcd sets key/value pairs to etcd disrtibuted store at an interval
-//  Used to renew a ttl set
-//
-//////////////////////////////////////////////////////////////////////////
+//HeartbeatEtcd sets key/value pairs to etcd disrtibuted store at an interval
+//Used to renew a ttl set
 func HeartBeatEtcd(key string, value string, ttl int) {
 
 	interval := (ttl * 1000) - 500
@@ -100,41 +79,8 @@ func HeartBeatEtcd(key string, value string, ttl int) {
 
 }
 
-//////////////////////////////////////////////////////////////////////////
-//
-//	Used for loading encrypted etcd key/value pairs.
-//	crypt set -keyring .pubring.gpg -endpoint http://172.17.42.1:4001 /catagory/variable filename
-//
-//////////////////////////////////////////////////////////////////////////
-func GetCryptKey(keyringPath string, key string) ([]byte, error) {
-
-	//get key ring
-	kr, err := os.Open(keyringPath)
-	if err != nil {
-		return nil, fmt.Errorf("open keyring error: %v", err)
-	}
-	defer kr.Close()
-
-	//setup etcd manager
-	cm, err := config.NewEtcdConfigManager(clientEtcdURL, kr)
-	if err != nil {
-		return nil, fmt.Errorf("setup etcd manager error: %v", err)
-	}
-
-	value, err := cm.Get(key)
-	if err != nil {
-		return nil, fmt.Errorf("get crypt %v error: %v", clientEtcdURL, err)
-	}
-
-	return value, nil
-}
-
-//////////////////////////////////////////////////////////////////////////
-//
-//	generate a hash fnv1a hash. Fast, unique, but insecure! use only for ids and such.
-//  https://programmers.stackexchange.com/questions/49550/which-hashing-algorithm-is-best-for-uniqueness-and-speed
-//
-//////////////////////////////////////////////////////////////////////////
+//GenerateFnvHashID generates a hash fnv1a hash. Fast, unique, but insecure! use only for ids and such.
+//https://programmers.stackexchange.com/questions/49550/which-hashing-algorithm-is-best-for-uniqueness-and-speed
 func GenerateFnvHashID(hashSeeds ...string) uint32 {
 
 	inputString := strings.Join(hashSeeds, "")
@@ -149,12 +95,7 @@ func GenerateFnvHashID(hashSeeds ...string) uint32 {
 
 }
 
-//////////////////////////////////////////////////////////////////////////
-//
-// encodetoDataUri
-//
-//
-//////////////////////////////////////////////////////////////////////////
+//EncodetoDataUri reads a file and generates a data uri
 func EncodetoDataUri(fileName string, mimeType string, allowTypes ...string) (string, error) {
 
 	file, _ := os.Open(fileName) //TODO: change to read in through form or json
@@ -185,12 +126,7 @@ func EncodetoDataUri(fileName string, mimeType string, allowTypes ...string) (st
 	return fmt.Sprintf("data:%s;base64,%s", mimeType, base64.StdEncoding.EncodeToString(data)), nil
 }
 
-//////////////////////////////////////////////////////////////////////////
-//
-// DecodeUriToBytes
-//
-//
-//////////////////////////////////////////////////////////////////////////
+//DecodeUriToBytes decodes a data uri into bytes
 func DecodeUriToBytes(str string, fileType string) (string, []byte) {
 
 	dataStr := strings.SplitN(str, ",", 2) //seperate data:image/png;base64, from the DataURI
@@ -203,24 +139,16 @@ func DecodeUriToBytes(str string, fileType string) (string, []byte) {
 
 	if dataExt != fileType {
 		err := fmt.Errorf("[Error] file type: %s not allowed", dataExt)
-		Check(err)
+		if err != nil {
+			fmt.Printf("file type error %s", err) //TODO. Return error
+		}
 	}
 
 	data, err := base64.StdEncoding.DecodeString(dataStr[1]) // [] byte
-	Check(err)
+	if err != nil {
+		fmt.Printf("base64 encode error %s", err)
+	}
 
 	return dataExt, data
 
-}
-
-//////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//////////////////////////////////////////////////////////////////////////
-func Check(e error) {
-	if e != nil {
-		panic(e)
-	}
 }

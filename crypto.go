@@ -1,4 +1,4 @@
-package utils
+package utilbelt
 
 import (
 	"crypto/aes"
@@ -16,12 +16,7 @@ import (
 	"unicode"
 )
 
-//////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//////////////////////////////////////////////////////////////////////////
+//GenerateToken creates a urlEnocded hmac token
 func GenerateToken(key []byte, seeds ...string) string {
 
 	tokenSeed := strings.Join(seeds, "|")
@@ -31,12 +26,7 @@ func GenerateToken(key []byte, seeds ...string) string {
 
 }
 
-//////////////////////////////////////////////////////////////////////////
-//
-// verifyToken returns true if messageMAC is a valid HMAC tag for message.
-//
-//
-//////////////////////////////////////////////////////////////////////////
+//VerifyToken returns true if token has a valid HMAC.
 func VerifyToken(key []byte, authToken string, seeds ...string) (bool, error) {
 
 	decodedMac, err := base64.URLEncoding.DecodeString(authToken)
@@ -49,12 +39,7 @@ func VerifyToken(key []byte, authToken string, seeds ...string) (bool, error) {
 
 }
 
-//////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//////////////////////////////////////////////////////////////////////////
+//CalcHMAC makes an HMAC of a message and key
 func CalcHMAC(message string, key []byte) []byte {
 
 	mac := hmac.New(sha256.New, key)
@@ -65,12 +50,7 @@ func CalcHMAC(message string, key []byte) []byte {
 	return mac.Sum(nil)
 }
 
-//////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//////////////////////////////////////////////////////////////////////////
+//VerifyHMAC verifies a HMAC message
 func VerifyHMAC(message string, macOfMessage []byte, key []byte) bool {
 
 	mac := hmac.New(sha256.New, key)
@@ -82,12 +62,7 @@ func VerifyHMAC(message string, macOfMessage []byte, key []byte) bool {
 	return hmac.Equal(macOfMessage, expectedMAC)
 }
 
-//////////////////////////////////////////////////////////////////////////
-//
-// encrypt string to base64 crypto using AES
-//
-//
-//////////////////////////////////////////////////////////////////////////
+//EncryptAESCFB encrypts string to base64 crypto using AES
 func EncryptAESCFB(key []byte, text string) string {
 
 	plaintext := []byte(text)
@@ -112,12 +87,7 @@ func EncryptAESCFB(key []byte, text string) string {
 	return base64.URLEncoding.EncodeToString(ciphertext)
 }
 
-//////////////////////////////////////////////////////////////////////////
-//
-// decrypt from base64 to decrypted string
-//
-//
-//////////////////////////////////////////////////////////////////////////
+//DecryptAESCFB decrypts from base64 to decrypted string
 func DecryptAESCFB(key []byte, cryptoText string) string {
 
 	ciphertext, _ := base64.URLEncoding.DecodeString(cryptoText)
@@ -143,12 +113,7 @@ func DecryptAESCFB(key []byte, cryptoText string) string {
 	return fmt.Sprintf("%s", ciphertext)
 }
 
-//////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//////////////////////////////////////////////////////////////////////////
+//HashSha1Json computes a Sha1 hash of json data
 func HashSha1Json(jsonData interface{}) []byte {
 
 	//compute sha1 hash for json
@@ -158,12 +123,7 @@ func HashSha1Json(jsonData interface{}) []byte {
 	return hash.Sum(nil)
 }
 
-//////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//////////////////////////////////////////////////////////////////////////
+//HashSha1Bytes computes a Sha1 hash of byte data
 func HashSha1Bytes(hashBytes []byte) []byte {
 
 	//compute sha1 hash of bytes
@@ -176,12 +136,7 @@ func HashSha1Bytes(hashBytes []byte) []byte {
 
 }
 
-//////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//////////////////////////////////////////////////////////////////////////
+//RandomStr generates a string of random letters and numbers with crypto/rand
 func RandomStr(n int) string {
 	g := big.NewInt(0)
 	max := big.NewInt(130)
