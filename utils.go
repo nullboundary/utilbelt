@@ -65,7 +65,7 @@ func GetEtcdKey(key string) (string, error) {
 
 }
 
-//HeartbeatEtcd sets key/value pairs to etcd disrtibuted store at an interval
+//HeartBeatEtcd sets key/value pairs to etcd disrtibuted store at an interval
 //Used to renew a ttl set
 func HeartBeatEtcd(key string, value string, ttl int) {
 

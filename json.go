@@ -18,7 +18,7 @@ func ReadJson(req *http.Request, data interface{}) error {
 	return nil
 }
 
-//WriteJsonStatus writes json to response and set specfic http status code
+//WriteJsonStatus writes json to response and set specific http status code
 func WriteJsonStatus(res http.ResponseWriter, status int, dataOut interface{}, pretty bool) error {
 
 	res.Header().Add("Content-Type", "application/json")

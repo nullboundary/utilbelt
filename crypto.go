@@ -142,7 +142,7 @@ func RandomStr(n int) string {
 	max := big.NewInt(130)
 	bs := make([]byte, n)
 
-	for i, _ := range bs {
+	for i := range bs {
 		g, _ = rand.Int(rand.Reader, max)
 		r := rune(g.Int64())
 		for !unicode.IsNumber(r) && !unicode.IsLetter(r) {
